@@ -1,125 +1,239 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart'; // Import for custom fonts
 
 void main() {
-  runApp(const MyApp());
+  runApp(const PortfolioApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PortfolioApp extends StatelessWidget {
+  const PortfolioApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        textTheme: GoogleFonts.latoTextTheme(),
+        primaryColor: Colors.blueAccent,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const PortfolioPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class PortfolioPage extends StatefulWidget {
+  const PortfolioPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _PortfolioPageState createState() => _PortfolioPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _PortfolioPageState extends State<PortfolioPage> with TickerProviderStateMixin {
+  late final AnimationController _backgroundController;
+  late final AnimationController _shadowController;
+  late final AnimationController _iconRotationController;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+
+    // Background gradient animation
+    _backgroundController = AnimationController(
+      duration: const Duration(seconds: 5),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    // Card shadow pulsating animation
+    _shadowController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    // Icon rotation animation
+    _iconRotationController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _backgroundController.dispose();
+    _shadowController.dispose();
+    _iconRotationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: AnimatedBuilder(
+        animation: _backgroundController,
+        builder: (context, child) {
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.lerp(Colors.blueAccent, Colors.teal, _backgroundController.value)!,
+                  Color.lerp(Colors.teal, Colors.blueAccent, _backgroundController.value)!
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Center(
+                    child: CircleAvatar(
+                      radius: 80.0,
+                      backgroundImage: NetworkImage(
+                          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMV4Tl-Aaafrmi-L8EPzD1244MK43q9suRxQ&s'),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Center(
+                    child: Text(
+                      "Anindya Kanti Das",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      "Student",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  buildCard(
+                    title: "About Me",
+                    content: const Text(
+                      "Lazy Coder who loves to learn new things. Basic knowledge of Flutter and made some projects with HTML, CSS, Express.js, etc.",
+                      style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 255, 255, 255)),
+                    ),
+                    icon: Icons.person,
+                  ),
+                  const SizedBox(height: 20),
+                  buildCard(
+                    title: "Skills",
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        ListTile(
+                          leading: Icon(Icons.android, color: Color.fromARGB(255, 0, 255, 247)),
+                          title: Text("Flutter Development", style: TextStyle(color: Colors.white)),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.cloud, color: Color.fromARGB(255, 0, 255, 242)),
+                          title: Text("Firebase Integration, SQL, MongoDB", style: TextStyle(color: Colors.white)),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.api, color: Color.fromARGB(255, 0, 242, 255)),
+                          title: Text("Node.js Backend", style: TextStyle(color: Colors.white)),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.code, color: Color.fromARGB(255, 0, 234, 255)),
+                          title: Text("HTML, CSS, Express, C, Python", style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                    icon: Icons.lightbulb,
+                  ),
+                  const SizedBox(height: 20),
+                  buildCard(
+                    title: "Contact",
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.email, color: Color.fromARGB(255, 0, 234, 255)),
+                            SizedBox(width: 10),
+                            Text("anindyakanti2020@gmail.com", style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: const [
+                            Icon(Icons.phone, color: Color.fromARGB(255, 0, 234, 255)),
+                            SizedBox(width: 10),
+                            Text("xxx-xxx-xxx-x", style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    icon: Icons.contact_mail,
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Card buildCard(
+      {required String title,
+      required Widget content,
+      required IconData icon}) {
+    return AnimatedBuilder(
+      animation: _shadowController,
+      builder: (context, child) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.all(16.0),
+          margin: const EdgeInsets.only(bottom: 16.0),
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.8),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                spreadRadius: 3,
+                blurRadius: 7,
+                offset: Offset(0, _shadowController.value * 10),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  RotationTransition(
+                    turns: Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+                      parent: _iconRotationController,
+                      curve: Curves.linear,
+                    )),
+                    child: Icon(icon, color: Color.fromARGB(255, 0, 255, 251), size: 28),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              content,
+            ],
+          ),
+        );
+      },
     );
   }
 }
